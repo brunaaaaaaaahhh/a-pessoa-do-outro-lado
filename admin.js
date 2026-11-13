@@ -41,7 +41,7 @@ await imgDb('readonly', s => {
 let ed, box;
 await new Promise(ok => {
   edFrame.onload = ok;
-  edFrame.srcdoc = `<!doctype html><html lang="pt-BR" data-theme="classico" data-font="literata" data-align="left" data-para="space"><head><meta charset="utf-8">
+  edFrame.srcdoc = `<!doctype html><html lang="pt-BR" data-theme="classico" data-font="lora" data-align="left" data-para="space"><head><meta charset="utf-8">
 <link rel="stylesheet" href="workskin.css"><link rel="stylesheet" href="reader.css">
 <style>body { margin: 0; } #app { max-width: none; padding: 18px 16px 60px; } .reader { padding-top: 0; }
 #workskin { min-height: 70vh; outline: none; }

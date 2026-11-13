@@ -4,6 +4,24 @@
   const work = config.workId || 'a-pessoa-do-outro-lado';
   let service, opening = 0, unsubscribe, active, sending = false, ready = false;
   const drafts = new Map();
+  const hoverable = matchMedia('(hover: hover)');
+  // Wide screens: the panel sits beside the text, below the header. Narrow screens keep the modal sheet.
+  const docked = matchMedia('(min-width: 900px)');
+  // The text reflows when the panel pushes it, so keep the active paragraph where the reader sees it.
+  let anchor;
+  function keepPlace(change) {
+    const y = anchor?.isConnected ? anchor.getBoundingClientRect().top : null;
+    change();
+    if (y != null) scrollBy(0, anchor.getBoundingClientRect().top - y);
+  }
+  function setDock(on) {
+    if (active) anchor = active.paragraph;
+    keepPlace(() => document.documentElement.classList.toggle('pc-docked', on));
+  }
+  // Lucide "message-circle" (ISC licence).
+  const ICON = '<svg class="pc-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>';
+  const counts = new Map(), queue = [], targets = new WeakMap();
+  let running = 0, countsOff = false, watcher, sizer;
   const el = (tag, cls, text) => {
     const node = document.createElement(tag);
     if (cls) node.className = cls;
@@ -13,9 +31,11 @@
   const dialog = el('dialog', 'pc-dialog');
   dialog.id = 'paragraph-comments';
   dialog.setAttribute('aria-labelledby', 'pc-title');
+  dialog.tabIndex = -1; // Lets the panel itself take focus on open, so no ring shows on the close button.
   const head = el('header', 'pc-head');
   const title = el('h2', '', 'Comentários do parágrafo'); title.id = 'pc-title';
-  const close = el('button', 'pc-close', '×'); close.type = 'button';
+  const close = el('button', 'pc-close'); close.type = 'button';
+  close.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
   close.setAttribute('aria-label', 'Fechar comentários');
   head.append(title, close);
   const quote = el('blockquote', 'pc-quote');
@@ -77,10 +97,16 @@
   }
   function cleanup() {
     stop();
+    setDock(false);
     active?.paragraph.classList.remove('pc-selected');
     active = null;
   }
   close.onclick = () => dialog.close();
+  docked.addEventListener('change', () => { if (dialog.open) dialog.close(); });
+  // A docked panel is not modal, so the browser does not close it on Escape.
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && dialog.open && !dialog.matches(':modal') && !document.body.classList.contains('sheet-open')) dialog.close();
+  });
   dialog.addEventListener('close', cleanup);
   dialog.addEventListener('click', e => { if (e.target === dialog) {
     const r = dialog.getBoundingClientRect();
@@ -90,14 +116,64 @@
   text.addEventListener('input', () => { if (active) drafts.set(active.key, text.value); });
   retry.onclick = () => { if (active) return open(active); };
 
+  function setCount(target, n) {
+    const b = target.button, shown = n >= 50 ? '50+' : String(n);
+    const label = n ? `${n >= 50 ? '50 ou mais' : n} ${n === 1 ? 'comentário' : 'comentários'}` : '';
+    b.classList.toggle('pc-has', n > 0);
+    b.querySelector('.pc-count').textContent = n ? shown : '';
+    b.dataset.tip = n ? 'Ver ' + label : 'Comentar este parágrafo';
+    b.setAttribute('aria-label', `Comentar o parágrafo ${target.ordinal}` + (n ? ` (${label})` : ''));
+    counts.set(target.key, { n, at: Date.now() });
+  }
+  // Counts load one paragraph at a time, as the reader scrolls: each request is one database read.
+  async function loadCount(target) {
+    if (countsOff || !target.paragraph.isConnected) return;
+    const f = config.firebase;
+    const url = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(f.projectId)}/databases/(default)/documents/works/`
+      + `${encodeURIComponent(work)}/chapters/${target.chapter}/paragraphs/${encodeURIComponent(target.id)}/comments`
+      + `?pageSize=50&mask.fieldPaths=createdAt&key=${encodeURIComponent(f.apiKey)}`;
+    try {
+      const r = await fetch(url);
+      if (!r.ok) { countsOff = true; return; } // Quota or rules: stop asking, the panel still works.
+      setCount(target, ((await r.json()).documents || []).length);
+    } catch (_) {}
+  }
+  function pump() {
+    while (running < 4 && queue.length) {
+      running++;
+      loadCount(queue.shift()).finally(() => { running--; pump(); });
+    }
+  }
+  function watch(root, list) {
+    watcher?.disconnect(); sizer?.disconnect(); queue.length = 0;
+    // The button sits in the page margin when the margin is wide enough; otherwise it keeps its gutter.
+    const first = list.find(t => t.paragraph.classList.contains('pc-paragraph'))?.paragraph;
+    if (first && window.ResizeObserver) {
+      sizer = new ResizeObserver(() => {
+        const r = first.getBoundingClientRect();
+        const edge = document.documentElement.clientWidth - parseFloat(getComputedStyle(document.body).paddingRight); // minus a docked panel
+        if (r.width) keepPlace(() => root.classList.toggle('pc-float', edge - r.right >= 64));
+      });
+      sizer.observe(root); sizer.observe(document.documentElement);
+    }
+    if (!configured() || !window.IntersectionObserver) return;
+    watcher = new IntersectionObserver(entries => {
+      for (const e of entries) if (e.isIntersecting) { watcher.unobserve(e.target); queue.push(targets.get(e.target)); }
+      pump();
+    }, { rootMargin: '600px 0px' });
+    for (const t of list) {
+      const known = counts.get(t.key);
+      if (known && Date.now() - known.at < 300000) setCount(t, known.n);
+      else { targets.set(t.paragraph, t); watcher.observe(t.paragraph); }
+    }
+  }
   function draw(snapshot, b, target, version) {
     list.replaceChildren();
     const docs = snapshot.docs;
     if (!docs.length) status.textContent = snapshot.metadata.fromCache
       ? 'Conectando ao banco de comentários…' : 'Ainda não há comentários. Seja a primeira pessoa a comentar!';
     else status.textContent = `${docs.length === 50 ? 'Últimos 50 comentários' : docs.length + (docs.length === 1 ? ' comentário' : ' comentários')}${snapshot.metadata.fromCache ? ' · aguardando conexão' : ''}`;
-    target.button.textContent = '💬 ' + (docs.length === 50 ? '50+' : docs.length);
-    target.button.setAttribute('aria-label', `Comentar o parágrafo ${target.ordinal} (${docs.length}${docs.length === 50 ? ' ou mais' : ''} comentários)`);
+    if (docs.length || !snapshot.metadata.fromCache) setCount(target, docs.length); // An empty cache is not a real zero.
     for (const doc of [...docs].reverse()) {
       const data = doc.data(), item = el('article', 'pc-item');
       const meta = el('div', 'pc-meta');
@@ -134,7 +210,10 @@
     text.value = drafts.get(target.key) || '';
     ready = false; send.disabled = true;
     status.textContent = 'Carregando comentários…';
-    if (!dialog.open) dialog.showModal();
+    if (!dialog.open) {
+      if (docked.matches) { setDock(true); dialog.show(); } else dialog.showModal();
+      dialog.focus({ preventScroll: true });
+    }
     if (!configured()) {
       status.textContent = 'Os comentários ainda não foram ativados neste site.';
       hint.textContent = 'Para ativar, a autora precisa preencher firebase-config.js e publicar as regras do Firestore conforme COMENTARIOS.md.';
@@ -184,21 +263,30 @@
   });
   window.ParagraphComments = {
     mount(root, chapter) {
-      const ps = window.Paragraphs.assign(root);
+      const ps = window.Paragraphs.assign(root), list = [];
       ps.forEach((paragraph, i) => {
         if (paragraph.querySelector(':scope > .pc-trigger')) return;
         const id = paragraph.dataset.paragraphId;
         const quote = paragraph.textContent.trim();
-        const button = el('button', 'pc-trigger', '💬'); button.type = 'button';
-        button.title = 'Ler e escrever comentários';
+        const button = el('button', 'pc-trigger'); button.type = 'button';
+        button.innerHTML = ICON; button.append(el('span', 'pc-count'));
+        button.dataset.tip = 'Comentar este parágrafo'; // Shown by CSS as the tooltip.
         button.setAttribute('aria-label', `Comentar o parágrafo ${i + 1}`);
         button.setAttribute('aria-haspopup', 'dialog');
         button.setAttribute('aria-controls', dialog.id);
         const target = { chapter, id, quote, paragraph, button, ordinal: i + 1, key: chapter + '/' + id };
         button.onclick = () => open(target);
+        // Mouse only: a tap on a phone is often a scroll or a text selection, so touch keeps the button.
+        paragraph.addEventListener('click', e => {
+          if (!hoverable.matches || e.target.closest('a, button, summary, input, textarea, select')) return;
+          if (!getSelection().isCollapsed) return; // The reader selected text.
+          open(target);
+        });
         paragraph.classList.add(paragraph.closest('.widget') ? 'pc-widget-paragraph' : 'pc-paragraph');
         paragraph.append(button);
+        list.push(target);
       });
+      if (list.length) watch(root, list);
     }
   };
 })();

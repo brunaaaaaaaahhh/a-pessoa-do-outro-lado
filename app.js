@@ -24,9 +24,10 @@ const store = {
 const calm = matchMedia('(prefers-reduced-motion: reduce)');
 
 // ------------------------------------------------------------ preferences
-const DEF = { theme: 'classico', page: 'auto', font: 'literata', fs: 16, lh: '1.65', measure: '66', align: 'left', para: 'indent' };
+const DEF = { theme: 'classico', page: 'auto', font: 'lora', fs: 16, lh: '1.65', measure: '66', align: 'left', para: 'indent' };
 let P = Object.assign({}, DEF, store.get('apol_prefs', {}));
 if (!document.querySelector(`.fonts [data-v="${P.font}"]`)) P.font = DEF.font;  // fonts removed in an update
+P.para = DEF.para;  // the paragraph style setting was removed: everyone gets the default
 let read = store.get('apol_read', []), pos = store.get('apol_pos', {});
 
 const LIGHT = ['papel', 'sepia'];  // page colours the hacker theme does not allow

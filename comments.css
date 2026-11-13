@@ -4,25 +4,80 @@
   position: absolute; right: 0; top: 0; display: inline-flex; align-items: center; justify-content: center;
   min-width: 40px; min-height: 40px; padding: 4px; border: 1px solid transparent; border-radius: 10px;
   background: transparent; color: var(--paper-ink); font: 12px/1.2 var(--ui); text-indent: 0;
-  cursor: pointer; opacity: .65;
+  cursor: pointer; opacity: .65; gap: 4px; white-space: nowrap; font-variant-numeric: tabular-nums;
 }
-#workskin.story .pc-trigger:hover, #workskin.story .pc-trigger:focus-visible { opacity: 1; border-color: currentColor; }
-#workskin.story .pc-selected { border-radius: 4px; background: color-mix(in srgb, var(--paper-ink) 7%, var(--paper)); }
+#workskin.story .pc-icon { flex: none; }
+#workskin.story .pc-count:empty { display: none; }
+/* Wide margin (set by comments.js): the button leaves the text column and the gutter is given back. */
+#workskin.story.pc-float .pc-paragraph { padding-right: 0; min-height: 0; }
+/* The button box lines up with the highlight: same top, same height as a one-line highlight, same corners. */
+#workskin.story.pc-float .pc-paragraph > .pc-trigger {
+  right: auto; left: calc(100% + var(--pc-pad) + 4px); top: calc(-1 * var(--pc-pad));
+  min-height: 0; height: calc(var(--fs) * var(--lh) + 2 * var(--pc-pad)); padding: 0 10px; border: 0; /* one text line + padding */
+  border-radius: calc(8px + var(--pc-pad));
+}
+/* Keeps the hover alive while the mouse crosses the gap between the highlight and the button. */
+#workskin.story.pc-float .pc-paragraph > .pc-trigger::before {
+  content: ''; position: absolute; top: 0; bottom: 0; right: 100%; width: calc(var(--pc-pad) + 4px);
+}
+/* Tooltip with the button label. */
+#workskin.story .pc-trigger::after {
+  content: attr(data-tip); position: absolute; right: 0; bottom: calc(100% + 4px); z-index: 5;
+  padding: 6px 9px; border-radius: 8px; background: var(--paper-ink); color: var(--paper);
+  font: 500 12px/1.2 var(--ui); white-space: nowrap; pointer-events: none;
+  opacity: 0; transform: translateY(3px); transition: opacity .12s, transform .12s;
+}
+#workskin.story .pc-trigger:hover::after, #workskin.story .pc-trigger:focus-visible::after { opacity: 1; transform: none; }
+#workskin.story .pc-trigger:hover, #workskin.story .pc-trigger:focus-visible { opacity: 1; background: color-mix(in srgb, currentColor 7%, transparent); }
+/* The highlight extends past the text with a same-colour shadow, so the layout does not move. */
+#workskin.story .pc-paragraph { --pc-pad: 6px; }
+#workskin.story .pc-widget-paragraph { --pc-pad: 4px; }
+#workskin.story .pc-selected {
+  --pc-hl: color-mix(in srgb, var(--paper-ink) 7%, var(--paper));
+  border-radius: 8px; background: var(--pc-hl); box-shadow: 0 0 0 var(--pc-pad) var(--pc-hl);
+}
+/* Mouse only: the button appears with the paragraph highlight. Touch screens keep it visible. */
+@media (hover: hover) {
+  #workskin.story .pc-trigger { opacity: 0; transition: opacity .12s; }
+  #workskin.story .pc-paragraph:hover > .pc-trigger, #workskin.story .pc-widget-paragraph:hover > .pc-trigger,
+  #workskin.story .pc-selected > .pc-trigger, #workskin.story .pc-trigger.pc-has { opacity: .65; }
+  #workskin.story .pc-paragraph:hover > .pc-trigger:hover, #workskin.story .pc-widget-paragraph:hover > .pc-trigger:hover,
+  #workskin.story .pc-trigger:focus-visible { opacity: 1; }
+  #workskin.story .pc-paragraph:hover, #workskin.story .pc-widget-paragraph:hover {
+    --pc-hl: color-mix(in srgb, currentColor 7%, transparent);
+    border-radius: 8px; background: var(--pc-hl); box-shadow: 0 0 0 var(--pc-pad) var(--pc-hl); cursor: pointer;
+  }
+}
 .pc-dialog {
   position: fixed; inset: 0 0 0 auto; margin: 0; width: min(460px, 100%); max-width: 100%;
   height: 100dvh; max-height: 100dvh; padding: 22px; overflow-y: auto; overscroll-behavior: contain;
-  border: 0; border-left: 1px solid color-mix(in srgb, var(--paper-ink) 20%, var(--paper));
+  border: 0; border-left: 1px solid color-mix(in srgb, var(--paper-ink) 10%, var(--paper));
   color: var(--paper-ink); background: var(--paper); font: 15px/1.5 var(--ui); color-scheme: inherit;
 }
 .pc-dialog[open] { display: flex; flex-direction: column; gap: 14px; }
-.pc-dialog::backdrop { background: rgb(0 0 0 / .48); }
-body:has(.pc-dialog[open]) { overflow: hidden; }
+.pc-dialog:focus-visible { outline: none; }
+.pc-dialog::backdrop { background: transparent; }
+body:has(.pc-dialog:modal) { overflow: hidden; }
+/* Docked (set by comments.js on wide screens): the panel sits below the header and pushes the page. */
+html.pc-docked { --pc-w: clamp(340px, 34vw, 440px); }
+html.pc-docked body { padding-right: var(--pc-w); }
+html.pc-docked header.top { margin-right: calc(-1 * var(--pc-w)); } /* the header keeps the full width */
+html.pc-docked header.top.hide, html.pc-docked header.top.hide .aa { transform: none; box-shadow: none; } /* and stays in view */
+html.pc-docked header.top.hide .aa { background: transparent; }
+html.pc-docked .pct { right: calc(var(--pc-w) + 12px); }
+html.pc-docked .pc-dialog { inset: 64px 0 0 auto; width: var(--pc-w); height: auto; max-height: none; z-index: 35; }
 .pc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .pc-head h2 { margin: 0; font: 600 17px/1.4 var(--ui); }
-.pc-close { flex-shrink: 0; width: 44px; height: 44px; font-size: 28px; border: 0; background: transparent; cursor: pointer; }
-.pc-quote { margin: 0; padding: 12px 14px; border-left: 3px solid currentColor;
+.pc-close {
+  flex: none; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 8px;
+  background: transparent; cursor: pointer; opacity: .7; transition: opacity .12s, background-color .12s;
+}
+.pc-close:hover { opacity: 1; background: color-mix(in srgb, currentColor 8%, transparent); }
+.pc-close:focus-visible { opacity: 1; }
+.pc-close:active { background: color-mix(in srgb, currentColor 14%, transparent); }
+.pc-quote { margin: 0; padding: 8px 14px; border-left: 3px solid currentColor;
   background: color-mix(in srgb, var(--paper-ink) 6%, var(--paper));
-  font: italic 14px/1.6 var(--read-font); max-height: 150px; overflow: auto; white-space: pre-wrap; flex-shrink: 0; }
+  font: 14px/1.6 var(--read-font); max-height: 150px; overflow: auto; white-space: pre-wrap; flex-shrink: 0; }
 .pc-status, .pc-hint, .pc-error { margin: 0; font-size: 13px; }
 .pc-list { display: grid; gap: 12px; }
 .pc-item { padding: 12px; border: 1px solid color-mix(in srgb, var(--paper-ink) 20%, var(--paper)); border-radius: 12px; }
@@ -33,7 +88,7 @@ body:has(.pc-dialog[open]) { overflow: hidden; }
 .pc-form label { font-size: 13px; font-weight: 600; }
 .pc-form input, .pc-form textarea {
   width: 100%; border: 1px solid color-mix(in srgb, var(--paper-ink) 35%, var(--paper));
-  padding: 11px 12px; border-radius: 10px; color: var(--paper-ink); background: var(--paper); font: 16px/1.5 var(--ui);
+  padding: 8px; border-radius: 10px; color: var(--paper-ink); background: var(--paper); font: 14px/1.5 var(--ui);
 }
 .pc-form textarea { resize: vertical; min-height: 110px; }
 .pc-form input::placeholder, .pc-form textarea::placeholder { color: var(--paper-ink); opacity: .6; }
@@ -47,14 +102,16 @@ body:has(.pc-dialog[open]) { overflow: hidden; }
     border: 0; border-top: 1px solid currentColor; border-radius: 18px 18px 0 0;
     padding: 16px 16px max(20px, env(safe-area-inset-bottom)); }
   #workskin.story .pc-trigger { min-width: 44px; min-height: 44px; }
+  .pc-close { width: 44px; height: 44px; } /* touch size */
   #workskin.story .pc-paragraph { padding-right: 48px; min-height: 44px; }
 }
 @media print { .pc-trigger, .pc-dialog { display: none !important; } #workskin.story .pc-paragraph { padding-right: 0; } }
+@media (prefers-reduced-motion: reduce) { #workskin.story .pc-trigger, #workskin.story .pc-trigger::after { transition: none; } }
 
 /* Only message/post text receives a button inside widgets; headers and controls stay intact. */
 #workskin.story .pc-widget-paragraph > .pc-trigger {
-  position: static; display: inline-flex; vertical-align: middle; margin-left: 8px;
-  min-width: 32px; min-height: 32px; padding: 3px; color: inherit; background: transparent;
-  font: 12px/1.2 var(--ui); border: 1px solid currentColor; border-radius: 8px;
+  position: relative; display: inline-flex; vertical-align: middle; margin-left: 8px;
+  min-width: 32px; min-height: 32px; padding: 3px 6px; color: inherit;
+  font: 12px/1.2 var(--ui); border: 0; border-radius: 8px;
 }
 @media print { #workskin.story .pc-widget-paragraph > .pc-trigger { display: none !important; } }
