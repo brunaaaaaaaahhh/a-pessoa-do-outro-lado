@@ -53,6 +53,18 @@ async function gh(path, body, method) {
   return path.startsWith('contents/') ? r.text() : r.json();
 }
 
+// Commits made through the API carry the account's primary email unless an author is given.
+// Use the account's GitHub no-reply address, so no personal email shows in the history.
+async function author() {
+  try {
+    const r = await fetch('https://api.github.com/user', {
+      headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}`, Accept: 'application/vnd.github+json', 'User-Agent': 'fic-post-area' },
+    });
+    const u = r.ok ? await r.json() : null;
+    return u && u.id && u.login ? { name: u.login, email: `${u.id}+${u.login}@users.noreply.github.com` } : null;
+  } catch (e) { return null; }
+}
+
 module.exports = async (req, res) => {
   const fail = (code, error) => res.status(code).json({ error });
   if (req.method !== 'POST') return fail(405, 'Use POST.');
@@ -107,8 +119,10 @@ module.exports = async (req, res) => {
       tree.push({ path: `img/${im.name}`, mode: '100644', type: 'blob', sha: blob.sha });
     }
     const newTree = await gh('git/trees', { base_tree: baseTree, tree });
+    const who = await author();
+    if (!who) return fail(502, 'Não foi possível salvar no GitHub.');  // never fall back to the primary email
     const commit = await gh('git/commits', {
-      message: `${old ? 'fix: update' : 'feat: publish'} chapter ${n}`, tree: newTree.sha, parents: [head],
+      message: `${old ? 'fix: update' : 'feat: publish'} chapter ${n}`, tree: newTree.sha, parents: [head], author: who,
     });
     await gh(`git/refs/heads/${BRANCH}`, { sha: commit.sha }, 'PATCH');
     return res.status(200).json({ ok: true, n, title, body, removed, updated: !!old });
