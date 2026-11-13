@@ -1,0 +1,60 @@
+/* Scoped to comments. Paper colours follow all existing reader preferences. */
+#workskin.story .pc-paragraph { position: relative; padding-right: 44px; min-height: 40px; }
+#workskin.story .pc-trigger {
+  position: absolute; right: 0; top: 0; display: inline-flex; align-items: center; justify-content: center;
+  min-width: 40px; min-height: 40px; padding: 4px; border: 1px solid transparent; border-radius: 10px;
+  background: transparent; color: var(--paper-ink); font: 12px/1.2 var(--ui); text-indent: 0;
+  cursor: pointer; opacity: .65;
+}
+#workskin.story .pc-trigger:hover, #workskin.story .pc-trigger:focus-visible { opacity: 1; border-color: currentColor; }
+#workskin.story .pc-selected { border-radius: 4px; background: color-mix(in srgb, var(--paper-ink) 7%, var(--paper)); }
+.pc-dialog {
+  position: fixed; inset: 0 0 0 auto; margin: 0; width: min(460px, 100%); max-width: 100%;
+  height: 100dvh; max-height: 100dvh; padding: 22px; overflow-y: auto; overscroll-behavior: contain;
+  border: 0; border-left: 1px solid color-mix(in srgb, var(--paper-ink) 20%, var(--paper));
+  color: var(--paper-ink); background: var(--paper); font: 15px/1.5 var(--ui); color-scheme: inherit;
+}
+.pc-dialog[open] { display: flex; flex-direction: column; gap: 14px; }
+.pc-dialog::backdrop { background: rgb(0 0 0 / .48); }
+body:has(.pc-dialog[open]) { overflow: hidden; }
+.pc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pc-head h2 { margin: 0; font: 600 17px/1.4 var(--ui); }
+.pc-close { flex-shrink: 0; width: 44px; height: 44px; font-size: 28px; border: 0; background: transparent; cursor: pointer; }
+.pc-quote { margin: 0; padding: 12px 14px; border-left: 3px solid currentColor;
+  background: color-mix(in srgb, var(--paper-ink) 6%, var(--paper));
+  font: italic 14px/1.6 var(--read-font); max-height: 150px; overflow: auto; white-space: pre-wrap; flex-shrink: 0; }
+.pc-status, .pc-hint, .pc-error { margin: 0; font-size: 13px; }
+.pc-list { display: grid; gap: 12px; }
+.pc-item { padding: 12px; border: 1px solid color-mix(in srgb, var(--paper-ink) 20%, var(--paper)); border-radius: 12px; }
+.pc-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; font-size: 13px; overflow-wrap: anywhere; }
+.pc-meta time { font-size: 11px; }
+.pc-content { margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.pc-form { display: grid; gap: 8px; margin-top: auto; padding-top: 16px; flex-shrink: 0; }
+.pc-form label { font-size: 13px; font-weight: 600; }
+.pc-form input, .pc-form textarea {
+  width: 100%; border: 1px solid color-mix(in srgb, var(--paper-ink) 35%, var(--paper));
+  padding: 11px 12px; border-radius: 10px; color: var(--paper-ink); background: var(--paper); font: 16px/1.5 var(--ui);
+}
+.pc-form textarea { resize: vertical; min-height: 110px; }
+.pc-form input::placeholder, .pc-form textarea::placeholder { color: var(--paper-ink); opacity: .6; }
+.pc-send, .pc-retry, .pc-delete { border: 1px solid currentColor; border-radius: 9px; padding: 10px 14px; cursor: pointer; background: transparent; }
+.pc-send { background: var(--paper-ink); color: var(--paper); font-weight: 600; }
+.pc-delete { margin-top: 10px; font-size: 12px; padding: 6px 10px; }
+.pc-dialog button:disabled { opacity: .5; cursor: wait; }
+.pc-error:not(:empty) { padding: 10px; border: 1px solid currentColor; border-radius: 8px; }
+@media (max-width: 600px) {
+  .pc-dialog { inset: auto 0 0; width: 100%; height: auto; max-height: 92dvh;
+    border: 0; border-top: 1px solid currentColor; border-radius: 18px 18px 0 0;
+    padding: 16px 16px max(20px, env(safe-area-inset-bottom)); }
+  #workskin.story .pc-trigger { min-width: 44px; min-height: 44px; }
+  #workskin.story .pc-paragraph { padding-right: 48px; min-height: 44px; }
+}
+@media print { .pc-trigger, .pc-dialog { display: none !important; } #workskin.story .pc-paragraph { padding-right: 0; } }
+
+/* Only message/post text receives a button inside widgets; headers and controls stay intact. */
+#workskin.story .pc-widget-paragraph > .pc-trigger {
+  position: static; display: inline-flex; vertical-align: middle; margin-left: 8px;
+  min-width: 32px; min-height: 32px; padding: 3px; color: inherit; background: transparent;
+  font: 12px/1.2 var(--ui); border: 1px solid currentColor; border-radius: 8px;
+}
+@media print { #workskin.story .pc-widget-paragraph > .pc-trigger { display: none !important; } }

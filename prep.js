@@ -38,5 +38,6 @@ window.prepChapter = function (html) {
     }
   });
   flush();
+  window.Paragraphs?.assign(out);
   return { body: out.innerHTML, words: out.textContent.split(/\s+/).filter(Boolean).length };
 };

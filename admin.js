@@ -61,6 +61,7 @@ function toEditor(html) {
   tail();
 }
 function fromEditor() {
+  window.Paragraphs.assign(box);
   const c = box.cloneNode(true);
   c.querySelectorAll('img[data-name]').forEach(img => { img.setAttribute('src', 'img/' + img.dataset.name); img.removeAttribute('data-name'); });
   c.querySelectorAll(':scope > div:not([class])').forEach(d => { const p = document.createElement('p'); p.append(...d.childNodes); d.replaceWith(p); });  // a plain line, not a widget

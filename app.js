@@ -305,6 +305,7 @@ function chapter(n) {
     });
     if (chats[0] && matchMedia('(min-width: 721px)').matches) chats[0].open = true;
   });
+  window.ParagraphComments?.mount(st, n);
   rd.appendChild(st);
 
   if (n === CH[CH.length - 1].n) {
