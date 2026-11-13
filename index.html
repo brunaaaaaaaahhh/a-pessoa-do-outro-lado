@@ -143,11 +143,7 @@
 <script src="firebase-config.js?v=1"></script>
 <script src="comments.js?v=8"></script>
 <script src="app.js?v=lora2"></script>
-<!-- Vercel Web Analytics (served by Vercel once Analytics is enabled on the project) -->
-<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-  // the site routes with #: report /#cap/3 as /cap/3 so each page shows up on its own
-  // the admin preview shows the site in a frame: do not count those views
-  va('beforeSend', e => (window.top !== window ? null : { ...e, url: e.url.replace('/#', '/') }));</script>
-<script defer src="/_vercel/insights/script.js"></script>
+<!-- Vercel Web Analytics using @vercel/analytics package -->
+<script src="analytics.bundle.js"></script>
 </body>
 </html>
