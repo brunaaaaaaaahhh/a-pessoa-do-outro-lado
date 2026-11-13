@@ -1,0 +1,1 @@
+window.FIC_EXTRA=[];

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Publicar capítulo · a pessoa do outro lado.</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  /* shadcn/ui design language in plain CSS: its token names and component styles,
+     neutral palette, with the site's dark red as the primary colour. */
+  :root {
+    --background: #fff; --foreground: #0a0a0a; --card: #fff; --card-foreground: #0a0a0a;
+    --primary: #9b1c1c; --primary-foreground: #fafafa; --secondary: #f5f5f5; --secondary-foreground: #171717;
+    --muted: #f5f5f5; --muted-foreground: #737373; --accent: #f5f5f5; --accent-foreground: #171717;
+    --destructive: #dc2626; --border: #e5e5e5; --input: #e5e5e5; --ring: #9b1c1c;
+    --radius: .625rem; --h: 36px;
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / .05); --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / .1), 0 1px 2px -1px rgb(0 0 0 / .1);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #0a0a0a; --foreground: #fafafa; --card: #171717; --card-foreground: #fafafa;
+      --primary: #c53030; --primary-foreground: #fff; --secondary: #262626; --secondary-foreground: #fafafa;
+      --muted: #262626; --muted-foreground: #a1a1a1; --accent: #262626; --accent-foreground: #fafafa;
+      --destructive: #ff6467; --border: rgb(255 255 255 / .1); --input: rgb(255 255 255 / .15); --ring: #e06060;
+      color-scheme: dark;
+    }
+  }
+  @media (pointer: coarse) { :root { --h: 44px; } }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--background); color: var(--foreground); font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; }
+  svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .muted { margin: 0; color: var(--muted-foreground); font-size: 13px; }
+  .left { width: 100%; display: block; text-align: left; float: left;}
+  .right { width: 100%; display: block; text-align: right; float: right;}
+  .spacer { flex: 1; }
+
+  /* layout */
+  main { display: grid; grid-template-columns: minmax(400px, 1fr) minmax(0, 1fr); gap: 24px; padding: 24px; height: 100vh; }
+  main.solo { grid-template-columns: 1fr; }
+  main.solo .write { width: 100%; max-width: 1000px; margin: 0 auto; }
+  .write, .preview { display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+  .head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 20px; line-height: 1.2; font-weight: 600; letter-spacing: -.02em; }
+  .actions { display: flex; gap: 8px; }
+  .fields { display: flex; gap: 12px; flex-wrap: wrap; }
+  .field { display: grid; gap: 8px; flex: 1; min-width: 200px; }
+  .field.narrow { flex: 0 0 200px; }
+  .line { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  /* label, input, select */
+  .label { font-size: 14px; line-height: 1; font-weight: 500; }
+  .label .muted { font-weight: 400; }
+  .input {
+    width: 100%; height: var(--h); padding: 4px 12px; font: inherit; color: inherit; background: transparent;
+    border: 1px solid var(--input); border-radius: calc(var(--radius) - 2px); box-shadow: var(--shadow-xs); outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  select.input {
+    appearance: none; padding-right: 32px; text-overflow: ellipsis; cursor: pointer;
+    background: no-repeat right 10px center / 16px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+  select.input option { background: var(--card); color: var(--card-foreground); }
+  .input:focus-visible, .btn:focus-visible, .file:focus-within, .tabs button:focus-visible {
+    border-color: var(--ring); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 35%, transparent); outline: none;
+  }
+
+  /* button */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: var(--h); padding: 0 14px;
+    font: inherit; font-weight: 500; white-space: nowrap; text-decoration: none; cursor: pointer;
+    border: 1px solid transparent; border-radius: calc(var(--radius) - 2px); transition: background-color .15s, border-color .15s, box-shadow .15s;
+  }
+  .btn:disabled { opacity: .5; pointer-events: none; }
+  .btn-primary { background: var(--primary); color: var(--primary-foreground); box-shadow: var(--shadow-xs); }
+  .btn-primary:hover { background: color-mix(in srgb, var(--primary) 90%, var(--background)); }
+  .btn-outline { background: var(--background); color: var(--foreground); border-color: var(--input); box-shadow: var(--shadow-xs); }
+  .btn-ghost { background: transparent; color: var(--foreground); }
+  .btn-outline:hover, .btn-ghost:hover { background: var(--accent); color: var(--accent-foreground); }
+  .btn-icon { width: var(--h); padding: 0; }
+  .file { position: relative; }
+  .file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+
+  /* tabs (segmented choice) */
+  .tabs { display: inline-flex; height: var(--h); padding: 3px; background: var(--muted); border-radius: var(--radius); }
+  .tabs button {
+    display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; font: inherit; font-weight: 500; color: var(--muted-foreground);
+    background: transparent; border: 1px solid transparent; border-radius: calc(var(--radius) - 4px); cursor: pointer;
+  }
+  .tabs button[aria-pressed="true"] { background: var(--background); color: var(--foreground); box-shadow: var(--shadow-sm); }
+
+  /* card */
+  .card { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: calc(var(--radius) + 4px); box-shadow: var(--shadow-sm); overflow: hidden; }
+  .card:has(.edit:focus-within) { border-color: var(--ring); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 35%, transparent); }
+  .tools { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; padding: 8px; border-bottom: 1px solid var(--border); }
+  .tools .input { width: auto; max-width: 190px; }
+  .tools .tabs { margin-left: auto; }
+  .tools .card-title { padding: 0 8px; font-weight: 600; }
+  .sep { width: 1px; height: 20px; margin: 0 4px; background: var(--border); }
+  .edit { flex: 1; min-height: 240px; display: flex; background: #fff; }
+  .edit iframe, .edit textarea { flex: 1; width: 100%; border: 0; }
+  .edit textarea { resize: none; outline: none; padding: 16px; color: var(--foreground); background: var(--card); font: 13px/1.6 ui-monospace, 'SF Mono', Menlo, monospace; }
+  .foot { display: flex; flex-direction: column; gap: 8px; padding: 8px; border-top: 1px solid var(--border); }
+  .foot .muted:empty { display: none; }
+  .line.end { margin-left: auto; flex-wrap: nowrap; }  /* stays on the right when the row wraps */
+  /* tooltip */
+  .tip { position: relative; color: var(--muted-foreground); }
+  .tip [role="tooltip"] {
+    position: absolute; right: 0; bottom: calc(100% + 6px); z-index: 10; width: max-content; max-width: 260px; padding: 6px 12px;
+    font-size: 12px; line-height: 1.4; font-weight: 400; text-align: left; white-space: normal; color: var(--background); background: var(--foreground);
+    border-radius: calc(var(--radius) - 2px); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .15s;
+  }
+  .tip:hover [role="tooltip"], .tip:focus [role="tooltip"] { opacity: 1; visibility: visible; }
+  .foot #saved { flex: 1 1 160px; text-align: center; }  /* fills the middle, between the file buttons and Publicar */
+  #status { margin: 0; min-height: 1.5em; font-weight: 500; }
+  #status.bad, #ask-err { color: var(--destructive); }
+  .stage { flex: 1; min-height: 0; display: flex; justify-content: center; background: var(--muted); }
+  .stage iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+  .stage.phone iframe { width: 390px; max-width: 100%; border-inline: 1px solid var(--border); }
+
+  /* dialog */
+  dialog { width: min(calc(100vw - 32px), 425px); padding: 24px; background: var(--background); color: var(--foreground); border: 1px solid var(--border); border-radius: calc(var(--radius) + 4px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / .1), 0 4px 6px -4px rgb(0 0 0 / .1); }
+  dialog::backdrop { background: rgb(0 0 0 / .5); }
+  dialog form { display: grid; gap: 16px; }
+  dialog h2 { margin: 0 0 6px; font-size: 18px; line-height: 1.2; font-weight: 600; }
+  #ask-err { margin: -8px 0 0; min-height: 1.5em; font-weight: 500; }
+  .dialog-foot { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; height: auto; padding: 16px; }
+    .card { flex: none; }
+    .edit { height: 60vh; }
+    .stage { height: 80vh; }
+    .tools .tabs { margin-left: 0; }
+    .field.narrow { flex: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <section class="write" aria-label="Escrever">
+    <header class="head">
+      <div>
+        <h1>Publicar capítulo</h1>
+        <p class="muted">a pessoa do outro lado.</p>
+      </div>
+      <div class="actions">
+        <a class="btn btn-ghost" href="./">Ver o site</a>
+        <button type="button" class="btn btn-outline" id="toggle-preview" aria-controls="preview" aria-expanded="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></svg><span>Ocultar prévia</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="fields">
+      <div class="field narrow">
+        <label class="label" for="n">Capítulo</label>
+        <select class="input" id="n"></select>
+      </div>
+      <div class="field">
+        <label class="label" for="title">Nome do capítulo <span class="muted">(opcional)</span></label>
+        <input class="input" type="text" id="title" maxlength="120" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="tools" role="toolbar" aria-label="Ferramentas do editor">
+        <button type="button" class="btn btn-ghost btn-icon" data-cmd="bold" title="Negrito" aria-label="Negrito">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h9a4 4 0 0 1 0 8H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h7a4 4 0 0 1 0 8"/></svg>
+        </button>
+        <button type="button" class="btn btn-ghost btn-icon" data-cmd="italic" title="Itálico" aria-label="Itálico">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="19" x2="10" y1="4" y2="4"/><line x1="14" x2="5" y1="20" y2="20"/><line x1="15" x2="9" y1="4" y2="20"/></svg>
+        </button>
+        <button type="button" class="btn btn-ghost btn-icon" id="link" title="Link" aria-label="Link">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </button>
+        <label class="btn btn-ghost file">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>Imagem
+          <input type="file" id="file" accept="image/jpeg,image/png,image/gif,image/webp" multiple>
+        </label>
+        <span class="sep" aria-hidden="true"></span>
+        <select class="input" id="widget" aria-label="Inserir widget"><option value="">Inserir widget…</option></select>
+        <select class="input" id="sender" aria-label="Quem fala nesta parte da conversa do MSN" title="Quem fala nesta parte da conversa do MSN" hidden><option value="">Quem fala…</option></select>
+        <button type="button" class="btn btn-outline" id="line" title="Nova fala na conversa do MSN" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Fala
+        </button>
+        <div class="tabs" role="group" aria-label="Modo do editor">
+          <button type="button" data-mode="visual" aria-pressed="true">Visual</button>
+          <button type="button" data-mode="html" aria-pressed="false">HTML</button>
+        </div>
+      </div>
+      <div class="edit">
+        <iframe id="ed" title="Texto do capítulo"></iframe>
+        <textarea id="src" spellcheck="false" aria-label="Texto do capítulo em HTML" hidden></textarea>
+      </div>
+      <div class="foot">
+        <div class="line">
+          <button type="button" class="btn btn-outline" id="download">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>Download
+          </button>
+          <label class="btn btn-outline file">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>Importar
+            <input type="file" id="open" accept=".html,text/html">
+          </label>
+          <span class="muted" id="saved" role="status"></span>
+          <span class="line end">
+          <button type="button" class="btn btn-ghost btn-icon tip" aria-label="Sobre a publicação" aria-describedby="publish-tip">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <span role="tooltip" id="publish-tip">Para publicar é preciso a senha. Ela é pedida quando você clica em Publicar.</span>
+          </button>
+          <button type="button" class="btn btn-primary" id="publish">Publicar</button>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <p id="status" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="preview" id="preview" aria-label="Prévia">
+    <div class="card">
+      <div class="tools">
+        <strong class="card-title">Prévia</strong>
+        <div class="tabs" role="group" aria-label="Largura da prévia">
+          <button type="button" data-w="" aria-pressed="true">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>Computador
+          </button>
+          <button type="button" data-w="phone" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>Celular
+          </button>
+        </div>
+      </div>
+      <div class="stage" id="stage"><iframe id="frame" title="Prévia do capítulo"></iframe></div>
+    </div>
+  </section>
+</main>
+
+<dialog id="ask" aria-labelledby="ask-title">
+  <form id="ask-form">
+    <div>
+      <h2 id="ask-title">Publicar capítulo</h2>
+      <p class="muted">Digite a senha para publicar. O capítulo aparece no site em cerca de um minuto.</p>
+    </div>
+    <div class="field">
+      <label class="label" for="pw">Senha</label>
+      <input class="input" type="password" id="pw" autocomplete="current-password" required>
+    </div>
+    <p id="ask-err" role="alert"></p>
+    <div class="dialog-foot">
+      <button type="button" class="btn btn-outline" id="ask-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="ask-ok">Publicar</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="data.js"></script>
+<script src="extra.js"></script>
+<script src="prep.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

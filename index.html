@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="classico">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>a pessoa do outro lado.</title>
+<meta name="description" content="A fic da Duda Hacker. Como Trinity, Eduarda invade sistemas pelo preço certo, até cometer um erro: hackear Lorena Ferette, uma das garotas mais populares do Tumblr.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="a pessoa do outro lado.">
+<meta property="og:title" content="a pessoa do outro lado.">
+<meta property="og:description" content="A fic da Duda Hacker. Como Trinity, Eduarda invade sistemas pelo preço certo, até cometer um erro: hackear Lorena Ferette, uma das garotas mais populares do Tumblr.">
+<meta property="og:url" content="https://a-pessoa-do-outro-lado.vercel.app/">
+<meta property="og:image" content="https://a-pessoa-do-outro-lado.vercel.app/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Eduarda e Lorena frente a frente, cada uma no seu computador, ao lado do título a pessoa do outro lado.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, noai, noimageai">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,700;1,14..32,400;1,14..32,700&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,700;1,7..72,400;1,7..72,700&family=Playball&family=Parisienne&family=Playfair+Display:ital,wght@0,700;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,700;1,8..60,400;1,8..60,700&family=VT323&display=swap">
+<link rel="stylesheet" href="workskin.css?v=5e602d16">
+<link rel="stylesheet" href="reader.css?v=0515d541">
+<script>
+  // Apply saved look before first paint, so the page does not flash.
+  try {
+    const p = JSON.parse(localStorage.getItem('apol_prefs') || '{}');
+    for (const k of ['theme', 'page', 'font', 'align', 'para']) if (p[k]) document.documentElement.dataset[k] = p[k];
+  } catch (e) {}
+</script>
+</head>
+<body>
+<a class="skip" href="#app">Pular para o conteúdo</a>
+<header class="top" id="top">
+  <button class="brand" data-go="" aria-label="Início">
+    <span class="brand-mark" aria-hidden="true"><svg class="mark" viewBox="0 0 32 32"><path class="m1" d="M9 4h7a7 7 0 0 1 0 14h-4l-6 5 1.5-5.6A7 7 0 0 1 9 4z"/><path class="m2" d="M16 11h7a7 7 0 0 1 1.5 13.8L26 30l-6-5h-4a7 7 0 0 1 0-14z"/><circle class="m3" cx="16" cy="18" r="1.6"/><circle class="m3" cx="21" cy="18" r="1.6"/></svg></span><span class="brand-name">a pessoa do outro lado.</span>
+  </button>
+  <nav aria-label="Seções">
+    <button data-go="capitulos" data-r="home">Capítulos</button>
+    <button data-go="personagens" data-r="personagens">Personagens</button>
+    <button data-go="sobre" data-r="sobre">Sobre</button>
+  </nav>
+  <button class="aa dice" id="shuffle" aria-label="Tema aleatório" title="Tema aleatório"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="15.5" cy="15.5" r="1.6"/></svg></button>
+  <button class="aa" id="open-settings" aria-label="Aparência e leitura" aria-haspopup="dialog" aria-controls="settings">Aa</button>
+</header>
+<div class="bar" id="bar" aria-hidden="true"></div>
+<div class="pct" id="pct" aria-live="polite"></div>
+<div class="fx" id="fx" aria-hidden="true"></div>
+
+<main id="app" tabindex="-1"></main>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="sheet" id="settings" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
+  <div class="sheet-head">
+    <h2 id="settings-title">Aparência e leitura</h2>
+    <button class="x" id="close-settings" aria-label="Fechar">✕</button>
+  </div>
+
+  <fieldset>
+    <legend>Tema</legend>
+    <div class="themes" data-pref="theme">
+      <button data-v="classico"><i></i>Clássico</button>
+      <button data-v="romance"><i></i>Romance</button>
+      <button data-v="hacker"><i></i>Hacker</button>
+      <button data-v="msn"><i></i>MSN 2008</button>
+      <button data-v="tumblr"><i></i>Tumblr</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Cor da página</legend>
+    <div class="swatches" data-pref="page">
+      <button data-v="auto" title="Cor do tema"><i></i>Tema</button>
+      <button data-v="papel"><i></i>Papel</button>
+      <button data-v="sepia"><i></i>Sépia</button>
+      <button data-v="cinza"><i></i>Cinza</button>
+      <button data-v="noite"><i></i>Noite</button>
+      <button data-v="preto"><i></i>Preto</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Fonte</legend>
+    <div class="fonts" data-pref="font">
+      <button data-v="literata">Literata</button>
+      <button data-v="source">Source Serif</button>
+      <button data-v="georgia">Georgia</button>
+      <button data-v="inter">Inter</button>
+      <button data-v="mono">Plex Mono</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Tamanho do texto <output id="fs-out"></output></legend>
+    <div class="range">
+      <button data-step="fs" data-d="-1" aria-label="Diminuir texto">A−</button>
+      <input type="range" id="fs" min="14" max="30" step="1" aria-label="Tamanho do texto">
+      <button data-step="fs" data-d="1" aria-label="Aumentar texto" class="big">A+</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Espaço entre linhas</legend>
+    <div class="seg icons" data-pref="lh">
+      <button data-v="1.45" aria-label="Compacto" title="Compacto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8H20"/><path d="M4 12H20"/><path d="M4 16H20"/></svg></button>
+      <button data-v="1.65" aria-label="Normal" title="Normal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7H20"/><path d="M4 12H20"/><path d="M4 17H20"/></svg></button>
+      <button data-v="1.85" aria-label="Amplo" title="Amplo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5H20"/><path d="M4 12H20"/><path d="M4 18.5H20"/></svg></button>
+      <button data-v="2.1" aria-label="Extra" title="Extra"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4H20"/><path d="M4 12H20"/><path d="M4 20H20"/></svg></button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Margens</legend>
+    <div class="seg icons" data-pref="measure">
+      <button data-v="78" aria-label="Margens estreitas" title="Margens estreitas"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M6 8H18"/><path d="M6 12H18"/><path d="M6 16H18"/></svg></button>
+      <button data-v="66" aria-label="Margens médias" title="Margens médias"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 8H16"/><path d="M8 12H16"/><path d="M8 16H16"/></svg></button>
+      <button data-v="56" aria-label="Margens largas" title="Margens largas"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M10 8H14"/><path d="M10 12H14"/><path d="M10 16H14"/></svg></button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Alinhamento</legend>
+    <div class="seg icons" data-pref="align">
+      <button data-v="left" aria-label="Alinhar à esquerda" title="Alinhar à esquerda"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6H20"/><path d="M4 10H14"/><path d="M4 14H18"/><path d="M4 18H11"/></svg></button>
+      <button data-v="justify" aria-label="Justificado" title="Justificado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6H20"/><path d="M4 10H20"/><path d="M4 14H20"/><path d="M4 18H13"/></svg></button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Parágrafos</legend>
+    <div class="seg icons" data-pref="para">
+      <button data-v="indent" aria-label="Parágrafos com recuo" title="Parágrafos com recuo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5H20"/><path d="M4 9H20"/><path d="M4 13H13"/><path d="M9 17H20"/><path d="M4 21H16"/></svg></button>
+      <button data-v="space" aria-label="Parágrafos espaçados" title="Parágrafos espaçados"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4H20"/><path d="M4 8H14"/><path d="M4 15H20"/><path d="M4 19H12"/></svg></button>
+    </div>
+  </fieldset>
+
+  <p class="sample" id="sample">— Atrasada de novo, Juquinha? — perguntou Paulinho, fazendo com que a ruiva despertasse dos seus devaneios.</p>
+  <button class="reset" id="reset">Restaurar padrão</button>
+</aside>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="data.js?v=416b0ac8"></script>
+<script src="extra.js"></script>
+<script src="prep.js?v=020eb0f5"></script>
+<script src="characters.js?v=b5cab601"></script>
+<script src="art.js?v=009be0a6"></script>
+<script src="app.js?v=e7112acd"></script>
+<!-- Vercel Web Analytics (served by Vercel once Analytics is enabled on the project) -->
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  // the site routes with #: report /#cap/3 as /cap/3 so each page shows up on its own
+  // the admin preview shows the site in a frame: do not count those views
+  va('beforeSend', e => (window.top !== window ? null : { ...e, url: e.url.replace('/#', '/') }));</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# local tooling
+.claude/
+.playwright-mcp/
+__pycache__/
+.DS_Store
+
+# secrets and Vercel link (keep out of the repo)
+.env*
+.vercel/
+
+# dependencies
+node_modules/

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    .m1 { fill: #9b1c1c; } .m2 { fill: #2b2622; } .m3 { fill: #fffdf8; }
+    @media (prefers-color-scheme: dark) { .m1 { fill: #e0566a; } .m2 { fill: #f4efe6; } .m3 { fill: #2b2622; } }
+  </style>
+  <path class="m1" d="M9 4h7a7 7 0 0 1 0 14h-4l-6 5 1.5-5.6A7 7 0 0 1 9 4z"/>
+  <path class="m2" d="M16 11h7a7 7 0 0 1 1.5 13.8L26 30l-6-5h-4a7 7 0 0 1 0-14z"/>
+  <circle class="m3" cx="16" cy="18" r="1.6"/><circle class="m3" cx="21" cy="18" r="1.6"/>
+</svg>

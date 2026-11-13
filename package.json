@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "dependencies": {
+    "sanitize-html": "^2.17.0"
+  },
+  "overrides": {
+    "htmlparser2": "8.0.2"
+  }
+}
